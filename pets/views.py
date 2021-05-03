@@ -38,7 +38,7 @@ class AnimalView(APIView):
 
         serializer = AnimalSerializer(animal)
 
-        return Response(serializer.data, status.HTTP_200_OK)
+        return Response(serializer.data, status.HTTP_201_CREATED)
 
     def get(self, request):
 

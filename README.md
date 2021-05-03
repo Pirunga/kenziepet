@@ -1,47 +1,162 @@
+Description
+
 API de Pet, com criação, consulta e remoção do pet(s).
 
-Desenvolvedor
+Dev
 
 Luiz Almeida - All
 
 Tecnologias
 
-Django and Rest
+Black, Django, and Django Rest Framework
 
 Instalação
 
-Use comand: pip install -r requirements.txt to install all tecnologies
+Use command python -m venv .venv to create a venv.
 
-Use comand: to
+Use command source .venv/bin/activate to active de venv.
+
+Use command pip install -r requirements.txt to install all tecnologies.
+
+Use command python manage.py migrate to create de tables.
+
+Use command python manage.py runserver to start the server localy.
 
 Rotas
-ROOT usuários - "/usuario".
-"/register" ["POST"] - Para cadastro de novos usuários.
-"nome": "yourname",
-"email": "yoruemail@domain.com",
-"senha": "yourpassword"
-"/login" ["POST"] - Para logar o usuário.
-"email": "yoruemail@domain.com",
-"senha": "yourpassword"
-"/<int:<usuario_id>" ["GET"] - Para buscar as perguntas especificas de um usuário.
-"/" ["DELETE"] - Deleção de usuários via Token.
-"/" ["PATCH, PUT"] - Para atualização de usuários, autorização via Token.
-ROOT temas - "/tema"
-"/string:tema" ["GET"] - Retorna perguntas do tema escolhido.
-"/" ["POST"] - Para criação de novas perguntas. Token requerido.
-"/int:tema_id " ["PATCH, PUT"] - Para atualizar ou modificar as perguntas. Token Requerido.
-"tema": "tema"\_update"
-"/int:tema_id" ["DELETE"] - Para deletar as perguntas via id. Token requerido.
-ROOT perguntas - "/pergunta"
-"/" ["GET"] - Retorna todas as perguntas.
-"/aleatoria?tema=tema" ["GET"] - Retorna pergunta aleatória do tema.
-"/int:pergunta_id" ["GET"] - Retorna perguntas específicas pelo id.
-"/" ["POST"] - Para criação de novas perguntas. Token requerido.
-"pergunta": "question",
-"resposta": "answer",
-"tema": "theme",
-"alternativa1": "alternative1",
-"alternativa2": "alternative2",
-"alternativa3": "alternative3"
-"/int:pergunta_id" ["DELETE"] - Para deleção de perguntas pelo id. Token requerido.
-"/int:pergunta_id" ["PATCH, PUT"] - Para modificação da pergunta pelo id. Token requerido.
+
+ROOT - "/animals".
+"/" ["POST"] - To create pet registration.
+
+```
+Body request:
+{
+    "name": "PetName",
+    "age": PetAge(Integer),
+    "weight": PetWeight(Integer),
+    "sex": "PetSex",
+    "group": {
+        "name": "Petnamegroup",
+        "scientific_name": "PetScientificName"
+    },
+    "characteristic_set": [
+        {
+            "characteristic": "PetCharacteristic"
+        },
+        {
+            "characteristic": "PetCharacteristic2"
+        }
+    ]
+}
+
+Response:
+{
+    "id": PetID,
+    "name": "PetName",
+    "age": PetAge (Integer),
+    "weight": PetWeight (Integer),
+    "sex": "PetSex",
+    "group": {
+        "id": groupID (Integer),
+        "name": "PetNameGroup",
+        "scientific_name": "PetScientificName"
+    },
+    "characteristic_set": [
+        {
+            "id": PetCharacteristic (Integer),
+            "characteristic": "PetCharacteristic"
+        },
+        {
+            "id": PetCharacteristic2 (Integer),
+            "characteristic": "PetCharacteristic2"
+        }
+    ]
+}
+
+Status: 201_CREATED
+```
+
+"/" ["GET"] - To get a all registered Pets informations.
+
+```
+Response:
+[
+    {
+        "id": 1,
+        "name": "Pet1Name",
+        "age": Pet1Age,
+        "weight": Pet1Weight,
+        "sex": "Pet1Sex",
+        "group": {
+            "id": 1,
+            "name": "Pet1namegroup",
+            "scientific_name": "Pet1ScientificName"
+        },
+        "characteristic_set": [
+            {
+                "id": Pet1CharacteristicID (Integer),
+                "characteristic": "Pet1Characteristic"
+            },
+        ]
+    },
+    {
+        "id": 2,
+        "name": "Pet2Name",
+        "age": Pet2Age,
+        "weight": Pet2Weight,
+        "sex": "Pet2Sex",
+        "group": {
+            "id": 1,
+            "name": "Pet2namegroup",
+            "scientific_name": "Pet2ScientificName"
+        },
+        "characteristic_set": [
+            {
+                "id": Pet2CharacteristicID (Integer),
+                "characteristic": "Pet2Characteristic"
+            },
+        ]
+    }, ...
+]
+
+Status: 200 OK
+```
+
+"/<int:<animal_id>" ["GET"] - To get a specific register Pet informations.
+
+```
+Response:
+{
+    "id": animal_id,
+    "name": "PetName",
+    "age": PetAge (Integer),
+    "weight": PetWeight (Integer),
+    "sex": "PetSex",
+    "group": {
+        "id": groupID (Integer),
+        "name": "PetNameGroup",
+        "scientific_name": "PetScientificName"
+    },
+    "characteristic_set": [
+        {
+            "id": PetCharacteristicID (Integer),
+            "characteristic": "PetCharacteristic"
+        },
+    ]
+}
+
+Status: 200 OK
+
+If Pet registration doesn't exist:
+
+Status: 404 NOT FOUND
+```
+
+"/<int:<animal_id>" ["DELETE"] - Delete Pet registration.
+
+```
+Status: 204 NO CONTENT
+
+If Pet registration doesn't exist:
+
+Status: 404 NOT FOUND
+```
