@@ -18,5 +18,5 @@ class AnimalSerializer(serializers.Serializer):
     age = serializers.FloatField()
     weight = serializers.FloatField()
     sex = serializers.CharField()
-    group = GroupSerializer(many=True)
+    group = GroupSerializer()
     characteristic_set = CharacteristicSerializer(many=True)
