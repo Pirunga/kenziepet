@@ -40,15 +40,6 @@ class AnimalView(APIView):
 
         return Response(serializer.data, status.HTTP_201_CREATED)
 
-    def get(self, request):
-
-        animals = Animal.objects.all()
-        serializer = AnimalSerializer(animals, many=True)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class AnimalRetrieveDelete(APIView):
     def get(self, request, animal_id=""):
         if animal_id:
             try:
@@ -58,6 +49,9 @@ class AnimalRetrieveDelete(APIView):
 
             except ObjectDoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
+
+        animals = Animal.objects.all()
+        serializer = AnimalSerializer(animals, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
