@@ -47,7 +47,7 @@ class AnimalView(APIView):
                 serializer = AnimalSerializer(animal)
                 return Response(serializer.data, status=status.HTTP_200_OK)
 
-            except ObjectDoesNotExist:
+            except Animal.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
 
         animals = Animal.objects.all()
