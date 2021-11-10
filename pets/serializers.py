@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 class CharacteristicSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
-    characteristic = serializers.CharField()
+    name = serializers.CharField()
 
 
 class GroupSerializer(serializers.Serializer):
@@ -19,4 +19,4 @@ class AnimalSerializer(serializers.Serializer):
     weight = serializers.FloatField()
     sex = serializers.CharField()
     group = GroupSerializer()
-    characteristic_set = CharacteristicSerializer(many=True)
+    characteristics = CharacteristicSerializer(many=True)

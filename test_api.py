@@ -12,9 +12,9 @@ class TestAnimalView(TestCase):
             "weight": 30,
             "sex": "female",
             "group": {"name": "cão", "scientific_name": "canis familiaris"},
-            "characteristic_set": [
-                {"characteristic": "peludo"},
-                {"characteristic": "medio porte"},
+            "characteristics": [
+                {"name": "peludo"},
+                {"name": "medio porte"},
             ],
         }
 
@@ -24,9 +24,9 @@ class TestAnimalView(TestCase):
             "weight": 20,
             "sex": "female",
             "group": {"name": "gato", "scientific_name": "felis catus"},
-            "characteristic_set": [
-                {"characteristic": "peludo"},
-                {"characteristic": "pequeno porte"},
+            "characteristics": [
+                {"name": "peludo"},
+                {"name": "pequeno porte"},
             ],
         }
 
@@ -36,9 +36,9 @@ class TestAnimalView(TestCase):
             "weight": 10,
             "sex": "male",
             "group": {"name": "papagaio", "scientific_name": "amazona"},
-            "characteristic_set": [
-                {"characteristic": "com penas"},
-                {"characteristic": "com bico"},
+            "characteristics": [
+                {"name": "com penas"},
+                {"name": "com bico"},
             ],
         }
 
@@ -48,13 +48,13 @@ class TestAnimalView(TestCase):
             "weight": 30,
             "sex": "female",
             "group": {"name": "cão", "scientific_name": "canis familiaris"},
-            "characteristic_set": [
-                {"characteristic": "peludo"},
-                {"characteristic": "medio porte"},
+            "characteristics": [
+                {"name": "peludo"},
+                {"name": "medio porte"},
             ],
         }
-
-    def test_animal_post(self):
+    
+    def test_create_animal(self):
         output_data = {
             "id": 1,
             "name": "amora",
@@ -62,9 +62,9 @@ class TestAnimalView(TestCase):
             "weight": 30,
             "sex": "female",
             "group": {"id": 1, "name": "cão", "scientific_name": "canis familiaris"},
-            "characteristic_set": [
-                {"id": 1, "characteristic": "peludo"},
-                {"id": 2, "characteristic": "medio porte"},
+            "characteristics": [
+                {"id": 1, "name": "peludo"},
+                {"id": 2, "name": "medio porte"},
             ],
         }
 
@@ -75,28 +75,8 @@ class TestAnimalView(TestCase):
         self.assertDictContainsSubset({"id": 1}, post_response.json())
         self.assertDictContainsSubset(output_data, post_response.json())
         self.assertEqual(post_response.status_code, 201)
-
-        # testa se o id da caracteristica "peludo" é o mesmo para ambos os requests
-        post_response_2 = self.client.post(
-            "/api/animals/", self.animal_data_2, format="json"
-        )
-
-        self.assertEqual(
-            post_response.json()["characteristic_set"][0]["id"],
-            post_response_2.json()["characteristic_set"][0]["id"],
-        )
-        self.assertEqual(post_response_2.status_code, 201)
-
-        # testa se o mesmo grupo não foi criado duas vezes
-        post_response_3 = self.client.post(
-            "/api/animals/", self.animal_data_4, format="json"
-        )
-        self.assertDictEqual(
-            post_response.json()["group"], post_response_3.json()["group"]
-        )
-        self.assertEqual(post_response_3.status_code, 201)
-
-    def test_get_animal(self):
+        
+    def test_list_animals(self):
         # testa se retorna lista vazia, request GET sem nenhum animal cadastrado
         get_response = self.client.get("/api/animals/", format="json")
         self.assertEqual(get_response.json(), [])
@@ -110,13 +90,21 @@ class TestAnimalView(TestCase):
 
         self.assertEqual(len(get_response_all.json()), 3)
         self.assertEqual(get_response.status_code, 200)
-
+        
     def test_get_two_animals_alike(self):
         # testa se dois animais iguais quando adicionados geram id's distintos
         self.client.post("/api/animals/", self.animal_data, format="json")
         self.client.post("/api/animals/", self.animal_data_4, format="json")
         get_response = self.client.get("/api/animals/", format="json")
+
+        # testa se realmente retornou 2 animais
         self.assertEqual(len(get_response.json()), 2)
+
+        first_id = get_response.json()[0]['id']
+        second_id = get_response.json()[1]['id']
+
+        # testa se os dois id's retornados são diferentes
+        self.assertNotEqual(first_id, second_id)
 
     def test_filter_animals(self):
         # testa a response quando tentamos filtrar sem nenhum animal cadastrado
@@ -128,7 +116,7 @@ class TestAnimalView(TestCase):
         get_response = self.client.get("/api/animals/1/", format="json")
         self.assertEqual(get_response.status_code, 200)
         self.assertDictContainsSubset({"id": 1}, get_response.json())
-
+    
     def test_delete_animal(self):
         # testa se após buscar o animal deletado, ele tem o retorno esperado
         self.client.post("/api/animals/", self.animal_data, format="json")
@@ -136,3 +124,37 @@ class TestAnimalView(TestCase):
         delete_response_2 = self.client.delete("/api/animals/1/", format="json")
         self.assertEqual(delete_response.status_code, 204)
         self.assertEqual(delete_response_2.status_code, 404)
+    
+    def test_create_two_animals_with_the_same_characteristic(self):
+        # testa se o id da caracteristica "peludo" é o mesmo para ambos os requests
+        post_response = self.client.post(
+            "/api/animals/", self.animal_data, format="json"
+        )
+        
+        post_response_2 = self.client.post(
+            "/api/animals/", self.animal_data_2, format="json"
+        )
+
+        first_id_peludo = [
+            char["id"] for char in post_response.json()["characteristics"] if char["name"] == "peludo"
+            ]
+        second_id_peludo = [
+            char["id"] for char in post_response_2.json()["characteristics"] if char["name"] == "peludo"
+            ]
+        
+        self.assertEqual(first_id_peludo, second_id_peludo)
+        self.assertEqual(post_response_2.status_code, 201)
+    
+    def test_create_two_animals_with_the_same_group(self):
+        # testa se o mesmo grupo não foi criado duas vezes
+        post_response = self.client.post(
+            "/api/animals/", self.animal_data, format="json"
+        )
+        
+        post_response_3 = self.client.post(
+            "/api/animals/", self.animal_data_4, format="json"
+        )
+        self.assertDictEqual(
+            post_response.json()["group"], post_response_3.json()["group"]
+        )
+        self.assertEqual(post_response_3.status_code, 201)
